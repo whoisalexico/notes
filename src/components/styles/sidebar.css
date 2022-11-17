@@ -1,0 +1,29 @@
+.sidebar{
+    background-color: #dddddd;
+    height: 100vh;
+}
+
+.sidebar-header>div{
+    display: flex;
+    justify-content: space-around;
+}
+
+.addBtn, .deleteBtn {
+    width: 100px;
+    height: 30px;
+    transition: .7s;
+    font-size: 12px;
+}
+.addBtn:hover, .deleteBtn:hover{
+    transition: .7s;
+    background-color: #ef5d60;
+    border-radius: 60px;
+    color: #000000;
+    border-color: transparent;
+}
+.title{
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}

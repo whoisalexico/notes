@@ -1,88 +1,113 @@
-import {useCallback, useEffect, useMemo, useState} from "react";
-import {Layout, Input, Modal} from 'antd';
-import MDEditor from '@uiw/react-md-editor';
+import {useEffect, useState} from "react";
+import {Button, Layout, Input, Modal} from 'antd';
 import 'antd/dist/antd.css';
-import "easymde/dist/easymde.min.css";
 import './App.css';
-import Note from "./components/Note";
+import Sidebar from "./components/Sidebar";
 import Dexie from "dexie";
-import {useLiveQuery} from "dexie-react-hooks";
+import Editor from "./components/Editor";
 
 
 export const db = new Dexie('notes-database');
 db.version(1).stores({
-    notes: '++id, value',
+    notesdb: '++id, value',
 });
 
-const {notes} = db;
+const {notesdb} = db;
 
 const {Sider, Content} = Layout;
 
 const {Search} = Input;
 
-const { confirm } = Modal;
+const {confirm} = Modal;
 
 const showConfirm = () => {
     confirm({
         title: 'Do you Want to delete these item?',
         content: 'This item will be deleted immediately. You can\'t undo this action.',
+        onOk() {
+            console.log("amogus")
+        }
     });
 };
 
 function App() {
-    const getDate = new Date();
+    /*const notesList = useLiveQuery(() => notesdb.toArray(), []);*/
+    let notesList = [];
+    const [notes, setNotes] = useState([]);
 
-    const allItems = useLiveQuery(() => notes.toArray(), [])
+    const [currentNoteId, setCurrentNoteId] = useState((notesList[0] && notesList[0].id) || "");
+    useEffect(() => {
+        notesdb.toArray().then((data) => {
+            notesList = data;
+            setNotes(notesList)
+        })
+    })
 
-    const [value, setValue] = useState("");
+    function addNote() {
+        notesdb.add({
+            value: "Type your note here",
+        }).then((data) => {
+            setCurrentNoteId(data);
+        })
+        setNotes(notesList)
+    }
 
-    const [searchValue, setSearchValue] = useState("");
+    function updateNote(text) {
+        setNotes((oldNotes) => {
+            const newArray = []
+            for (let i = 0; i < oldNotes.length; i++) {
+                const oldNote = oldNotes[i]
+                if (oldNote.id === currentNoteId) {
+                    newArray.unshift({...oldNote, value: text})
+                } else {
+                    newArray.push(oldNote)
+                }
+            }
+            return newArray
+        })
+        notesdb.update(currentNoteId, {"value": text})
+    }
 
-    async function addNote() {
-        try {
-            await notes.add({
-                value,
-            })
-        } catch (e) {
-            console.log(e)
+    function findCurrentNote() {
+        return (
+            notes.find((note) => {
+                return note.id === currentNoteId
+            }) || notes[0]
+        )
+    }
 
-        }
+    function searchNotes(){
 
     }
 
-    /*async function deleteNote(){
-        try{
-            await notes.delete()
-        }
-    }*/
-
-
-    let onChange = useCallback(function (value) {
-        setValue(value)
-        notes.update({
-            "value": value,
-        })
-    }, []);
+    function deleteNote(event, noteId) {
+        notesdb.delete(noteId)
+        setNotes((oldNotes) => oldNotes.filter((note) => note.id !== noteId))
+    }
 
     return (
-        <Layout className="layout">
-            <Sider className="sidebar" style={{width: '500px',}}>
-                <Search placeholder="Search..." onChange={setSearchValue}/>
-                {allItems && allItems.map((item) => (
-                    <Note id={item.id} value={item.value}/>
-                ))}
-                <button onClick={addNote}>Add</button>
-                <button onClick={showConfirm}>Delete</button>
-            </Sider>
-            <Content>
-                <MDEditor
-                    value={value}
-                    onChange={setValue}
-                    height={405}
-                    preview={"edit"}
-                />
-            </Content>
-        </Layout>
+        <>
+            {
+                notes.length > 0 ? (
+                    <Layout className="layout">
+                        <Sider className={"sidebar"} width={350}>
+                            <Sidebar notes={notes} currentNote={findCurrentNote()} setCurrentNoteId={setCurrentNoteId}
+                                     newNote={addNote} deleteNote={deleteNote}/>
+                        </Sider>
+                        <Content>
+                            {currentNoteId && notes.length > 0 && (
+                                <Editor currentNote={findCurrentNote()} updateNote={updateNote}/>
+                            )}
+                        </Content>
+                    </Layout>
+                ) : (
+                    <div className={"no-notes"}>
+                        <h1 className={"no-notes-title"}>You have no notes</h1>
+                        <Button onClick={addNote}>Add new one</Button>
+                    </div>
+                )
+            }
+        </>
     );
 }
 
