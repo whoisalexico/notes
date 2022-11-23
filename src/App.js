@@ -74,8 +74,7 @@ function App() {
                     <Layout className="layout">
                         <Sider className={"sidebar"} width={350}>
                             <NotesContext.Provider value={notesContext}>
-                            <Sidebar notes={notes} currentNote={findCurrentNote()} setCurrentNoteId={setCurrentNoteId}
-                                     newNote={addNote} deleteNote={deleteNote}/>
+                            <Sidebar/>
                             </NotesContext.Provider>
                         </Sider>
                         <Content>
