@@ -1,6 +1,7 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import './styles/sidebar.css'
 import {Button, Modal, Input} from "antd";
+import {NotesContext} from "../App";
 
 
 const {confirm} = Modal;
@@ -8,6 +9,7 @@ const {Search} = Input;
 
 
 function Sidebar(props) {
+    const notes = useContext(NotesContext)
     const [searchValue, setSearchValue] = useState("");
     const showConfirm = (event, id) => {
         confirm({
@@ -18,7 +20,7 @@ function Sidebar(props) {
             }
         });
     };
-    const noteElements = props.notes.filter(note=>{
+    const noteElements = notes.filter(note=>{
         if(searchValue == "") {
             return note;
         }else if(note.value.toLowerCase().includes(searchValue.toLowerCase())){
