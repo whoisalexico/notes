@@ -1,25 +1,27 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {Button, Modal, Input} from "antd";
 import './styles/sidebar.css'
+import {NotesContext} from "../App";
 
 const {confirm} = Modal;
 
 const {Search} = Input;
 
 function Sidebar(props) {
+    const notesContext = useContext(NotesContext)
     const [searchValue, setSearchValue] = useState("");
 
     const showConfirm = (event, id) => {
         confirm({
-            title: 'Do you Want to delete these item?',
+            title: 'Do you Want to delete this item?',
             content: 'This item will be deleted immediately. You can\'t undo this action.',
             onOk() {
-                props.deleteNote(event, id);
+                notesContext.deleteNote(event, id);
             }
         });
     };
 
-    const noteElements = props.notes.filter(note=>{
+    const noteElements = notesContext.notes.filter(note=>{
         if(searchValue == "") {
             return note;
         }else if(note.value.toLowerCase().includes(searchValue.toLowerCase())){
@@ -29,9 +31,9 @@ function Sidebar(props) {
         <div key={note.id}>
             <div
                 className={`title ${
-                    note.id === props.currentNote.id ? 'selected-note' : ''
+                    note.id === notesContext.currentNote.id ? 'selected-note' : ''
                 }`}
-                onClick={() => props.setCurrentNoteId(note.id)}
+                onClick={() => notesContext.setCurrentNoteId(note.id)}
             >
                 <h3 className='text-snippet'>{note.value.split('\n')[0]}</h3>
                 <Button className={"deleteBtn"} onClick={(event) => showConfirm(event, note.id)}>Delete</Button>
@@ -44,7 +46,7 @@ function Sidebar(props) {
             <div className='sidebar-header'>
                 <div>
                     <h2>Markdown Notes</h2>
-                    <Button className={"addBtn"} onClick={props.newNote}>Add</Button>
+                    <Button className={"addBtn"} onClick={notesContext.newNote}>Add</Button>
                 </div>
                 <Search onChange={event => setSearchValue(event.target.value)} value={searchValue} placeholder={"Search..."} className={"search"}/>
             </div>
