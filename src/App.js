@@ -1,37 +1,15 @@
-import {useEffect, useState} from "react";
-import {Button, Layout, Input, Modal} from 'antd';
+import {createContext, useEffect, useState} from "react";
+import {Button, Layout} from 'antd';
 import 'antd/dist/antd.css';
 import './App.css';
 import Sidebar from "./components/Sidebar";
-import Dexie from "dexie";
 import Editor from "./components/Editor";
-
-
-export const db = new Dexie('notes-database');
-db.version(1).stores({
-    notesdb: '++id, value',
-});
-
-const {notesdb} = db;
+import {notesdb} from "./db";
 
 const {Sider, Content} = Layout;
-
-const {Search} = Input;
-
-const {confirm} = Modal;
-
-const showConfirm = () => {
-    confirm({
-        title: 'Do you Want to delete these item?',
-        content: 'This item will be deleted immediately. You can\'t undo this action.',
-        onOk() {
-            console.log("amogus")
-        }
-    });
-};
+export const NotesContext = createContext();
 
 function App() {
-    /*const notesList = useLiveQuery(() => notesdb.toArray(), []);*/
     let notesList = [];
     const [notes, setNotes] = useState([]);
 
@@ -41,7 +19,7 @@ function App() {
             notesList = data;
             setNotes(notesList)
         })
-    })
+    }, [currentNoteId])
 
     function addNote() {
         notesdb.add({
@@ -76,10 +54,6 @@ function App() {
         )
     }
 
-    function searchNotes(){
-
-    }
-
     function deleteNote(event, noteId) {
         notesdb.delete(noteId)
         setNotes((oldNotes) => oldNotes.filter((note) => note.id !== noteId))
@@ -91,8 +65,10 @@ function App() {
                 notes.length > 0 ? (
                     <Layout className="layout">
                         <Sider className={"sidebar"} width={350}>
+                            <NotesContext.Provider value={notes}>
                             <Sidebar notes={notes} currentNote={findCurrentNote()} setCurrentNoteId={setCurrentNoteId}
                                      newNote={addNote} deleteNote={deleteNote}/>
+                            </NotesContext.Provider>
                         </Sider>
                         <Content>
                             {currentNoteId && notes.length > 0 && (
