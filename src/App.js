@@ -11,9 +11,17 @@ export const NotesContext = createContext();
 
 function App() {
     let notesList = [];
+
     const [notes, setNotes] = useState([]);
 
     const [currentNoteId, setCurrentNoteId] = useState((notesList[0] && notesList[0].id) || "");
+    const notesContext = {
+        notes: notes,
+        currentNote: findCurrentNote(),
+        setCurrentNoteId: setCurrentNoteId,
+        newNote: addNote,
+        deleteNote: deleteNote
+    }
     useEffect(() => {
         notesdb.toArray().then((data) => {
             notesList = data;
@@ -65,7 +73,7 @@ function App() {
                 notes.length > 0 ? (
                     <Layout className="layout">
                         <Sider className={"sidebar"} width={350}>
-                            <NotesContext.Provider value={notes}>
+                            <NotesContext.Provider value={notesContext}>
                             <Sidebar notes={notes} currentNote={findCurrentNote()} setCurrentNoteId={setCurrentNoteId}
                                      newNote={addNote} deleteNote={deleteNote}/>
                             </NotesContext.Provider>
