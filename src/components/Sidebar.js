@@ -1,14 +1,14 @@
 import React, {useState} from 'react';
-import './styles/sidebar.css'
 import {Button, Modal, Input} from "antd";
-
+import './styles/sidebar.css'
 
 const {confirm} = Modal;
-const {Search} = Input;
 
+const {Search} = Input;
 
 function Sidebar(props) {
     const [searchValue, setSearchValue] = useState("");
+
     const showConfirm = (event, id) => {
         confirm({
             title: 'Do you Want to delete these item?',
@@ -18,6 +18,7 @@ function Sidebar(props) {
             }
         });
     };
+
     const noteElements = props.notes.filter(note=>{
         if(searchValue == "") {
             return note;
