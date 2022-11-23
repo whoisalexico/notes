@@ -1,10 +1,10 @@
 import {createContext, useEffect, useState} from "react";
 import {Button, Layout} from 'antd';
-import 'antd/dist/antd.css';
-import './App.css';
+import {notesdb} from "./db";
 import Sidebar from "./components/Sidebar";
 import Editor from "./components/Editor";
-import {notesdb} from "./db";
+import 'antd/dist/antd.css';
+import './App.css';
 
 const {Sider, Content} = Layout;
 export const NotesContext = createContext();
@@ -66,7 +66,7 @@ function App() {
                     <Layout className="layout">
                         <Sider className={"sidebar"} width={350}>
                             <NotesContext.Provider value={notes}>
-                            <Sidebar currentNote={findCurrentNote()} setCurrentNoteId={setCurrentNoteId}
+                            <Sidebar notes={notes} currentNote={findCurrentNote()} setCurrentNoteId={setCurrentNoteId}
                                      newNote={addNote} deleteNote={deleteNote}/>
                             </NotesContext.Provider>
                         </Sider>
